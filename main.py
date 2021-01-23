@@ -1,8 +1,11 @@
 import psutil, time
 from discord_webhook import DiscordWebhook, DiscordEmbed
+from tcp_latency import measure_latency
 
 webhook_url = "https://discord.com/api/webhooks/802329024818053153/FeHP0X74VqDrFY08KUdBAL_6odJB42EVYoXsnHoVYiuPOiFxVJ4lnwWp6A4l7c0WAmMQ"
 server_name = "Server1"
+state_critical = 0.5
+state_warning = 1
 
 def get_gb(bytes_input):
     gb_unrounded = bytes_input / 1073741824
@@ -48,9 +51,9 @@ def check_memory():
     old_status = read_old_status()
 
     status = "good"
-    if float(get_gb(mem.available)) < 0.5:
+    if float(get_gb(mem.available)) < state_critical:
         status = "critical"
-    elif float(get_gb(mem.available)) < 1:
+    elif float(get_gb(mem.available)) < state_warning:
         status = "warning"
 
     if status == old_status:
@@ -58,10 +61,12 @@ def check_memory():
     else:
         try:
             send_memory_warning(mem=mem, swap=swap, status=status)
+            try:
+                write_everything(mem=mem, swap=swap, status=status)
+            except:
+                print("ERROR WRITNG NEW STATUS IN FILE")
         except:
             print("ERROR SENDING WEBHOOK!")
-
-    write_everything(mem=mem, swap=swap, status=status)
 
 
 
@@ -81,11 +86,11 @@ def send_memory_warning(mem, swap, status):
 
     embed.add_embed_field(name="Memory", value=f'{str(get_gb(mem.total))}GB', inline=True)
     embed.add_embed_field(name="Memory Available", value=f'{str(get_gb(mem.available))}GB', inline=True)
-
     embed.add_embed_field(name="Status", value=status, inline=True)
 
     embed.add_embed_field(name="Swap", value=f'{str(get_gb(swap.total))}GB', inline=True)
     embed.add_embed_field(name="Swap Free", value=f'{str(get_gb(swap.free))}GB', inline=True)
+    embed.add_embed_field(name="Ping", value=f'{str(measure_latency(host='google.com'))}ms', inline=True)
 
     webhook = DiscordWebhook(url=webhook_url)
     webhook.add_embed(embed)
