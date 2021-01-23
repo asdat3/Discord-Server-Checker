@@ -8,6 +8,7 @@ def read_config_file():
     global state_critical
     global state_warning
     global icon_url_footer
+    global delay
 
     with open("config.json","r") as f:
         data = json.load(f)
@@ -17,6 +18,7 @@ def read_config_file():
         state_critical = float(data["state_critical"])
         state_warning = float(data["state_warning"])
         icon_url_footer = data["icon_url_footer"]
+        delay = data["delay"]
 
 
 def get_gb(bytes_input):
@@ -118,6 +120,6 @@ while checking_server == True:
     read_config_file()
     try:
         check_memory()
-        time.sleep(5)
+        time.sleep(delay)
     except:
         checking_server = False

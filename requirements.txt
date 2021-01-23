@@ -1,0 +1,3 @@
+psutil
+discord_webhook
+tcp_latency
