@@ -6,7 +6,7 @@ simply download the repository and start the main.py
 
 ## Requirements
 Python3 (I used 3.6.2)
-modules: discord_webhook + psutil
+modules: discord_webhook + psutil + tcp-latency
 
 ## How to get memory?
 I am getting the memory using a module named "psutil"
