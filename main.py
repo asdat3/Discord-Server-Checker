@@ -6,6 +6,7 @@ webhook_url = "https://discord.com/api/webhooks/802329024818053153/FeHP0X74VqDrF
 server_name = "Server1"
 state_critical = 0.5
 state_warning = 1
+icon_url_footer = "https://cdn.discordapp.com/attachments/736233445394481242/802330569160654878/drunk.png"
 
 def get_gb(bytes_input):
     gb_unrounded = bytes_input / 1073741824
@@ -82,7 +83,7 @@ def send_memory_warning(mem, swap, status):
 
     embed = DiscordEmbed(title=f'Memory {status} [{server_name}]', description=f'{server_name} {status}', color=color_bla)
 
-    embed.set_footer(text=f"Server Watcher | {server_name}", icon_url="https://cdn.discordapp.com/attachments/736233445394481242/802330569160654878/drunk.png")
+    embed.set_footer(text=f"Server Watcher | {server_name}", icon_url=icon_url_footer)
 
     embed.add_embed_field(name="Memory", value=f'{str(get_gb(mem.total))}GB', inline=True)
     embed.add_embed_field(name="Memory Available", value=f'{str(get_gb(mem.available))}GB', inline=True)
@@ -90,6 +91,8 @@ def send_memory_warning(mem, swap, status):
 
     embed.add_embed_field(name="Swap", value=f'{str(get_gb(swap.total))}GB', inline=True)
     embed.add_embed_field(name="Swap Free", value=f'{str(get_gb(swap.free))}GB', inline=True)
+
+    #ping (just to add another field to make it look better)
     ping_here_b = measure_latency(host='8.8.8.8')
     ping_here = round(float(ping_here_b[0]),3)
     embed.add_embed_field(name="Ping", value=f'{str(ping_here)}ms', inline=True)
