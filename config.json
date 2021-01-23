@@ -1,0 +1,7 @@
+{
+    "webhook_url":"insert_your_here",
+    "server_name":"Server1",
+    "state_critical":0.5,
+    "state_warning":1,
+    "icon_url_footer":"https://cdn.icon-icons.com/icons2/1852/PNG/512/iconfinder-server2-4417099_116631.png"
+}

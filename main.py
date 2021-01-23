@@ -1,12 +1,23 @@
-import psutil, time
+import psutil, time, json
 from discord_webhook import DiscordWebhook, DiscordEmbed
 from tcp_latency import measure_latency
 
-webhook_url = "https://discord.com/api/webhooks/802329024818053153/FeHP0X74VqDrFY08KUdBAL_6odJB42EVYoXsnHoVYiuPOiFxVJ4lnwWp6A4l7c0WAmMQ"
-server_name = "Server1"
-state_critical = 0.5
-state_warning = 1
-icon_url_footer = "https://cdn.discordapp.com/attachments/736233445394481242/802330569160654878/drunk.png"
+def read_config_file():
+    global webhook_url
+    global server_name
+    global state_critical
+    global state_warning
+    global icon_url_footer
+
+    with open("config.json","r") as f:
+        data = json.load(f)
+
+        webhook_url = data["webhook_url"]
+        server_name = data["server_name"]
+        state_critical = float(data["state_critical"])
+        state_warning = float(data["state_warning"])
+        icon_url_footer = data["icon_url_footer"]
+
 
 def get_gb(bytes_input):
     gb_unrounded = bytes_input / 1073741824
@@ -104,6 +115,7 @@ def send_memory_warning(mem, swap, status):
 
 checking_server = True
 while checking_server == True:
+    read_config_file()
     try:
         check_memory()
         time.sleep(5)
