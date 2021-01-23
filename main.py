@@ -90,7 +90,9 @@ def send_memory_warning(mem, swap, status):
 
     embed.add_embed_field(name="Swap", value=f'{str(get_gb(swap.total))}GB', inline=True)
     embed.add_embed_field(name="Swap Free", value=f'{str(get_gb(swap.free))}GB', inline=True)
-    embed.add_embed_field(name="Ping", value=f'{str(measure_latency(host='google.com'))}ms', inline=True)
+    ping_here_b = measure_latency(host='8.8.8.8')
+    ping_here = round(float(ping_here_b[0]),3)
+    embed.add_embed_field(name="Ping", value=f'{str(ping_here)}ms', inline=True)
 
     webhook = DiscordWebhook(url=webhook_url)
     webhook.add_embed(embed)
