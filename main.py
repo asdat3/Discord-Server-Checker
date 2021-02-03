@@ -61,8 +61,29 @@ def write_everything(mem, swap, status, swap_status):
     with open("DB/memory/old_avail_swap.txt","w") as f:
         f.write(str(swap.free))
 
+def set_counter():
+    global memory_good_counter
+    global memory_warning_counter
+    global memory_critical_counter
+    global swap_good_counter
+    global swap_warning_counter
+    global swap_critical_counter
+
+    memory_good_counter = 0
+    memory_warning_counter = 0
+    memory_critical_counter = 0
+    swap_good_counter = 0
+    swap_warning_counter = 0
+    swap_critical_counter = 0
 
 def check_memory():
+    global memory_good_counter
+    global memory_warning_counter
+    global memory_critical_counter
+    global swap_good_counter
+    global swap_warning_counter
+    global swap_critical_counter
+
     mem = psutil.virtual_memory()
     swap = psutil.swap_memory()
 
@@ -78,8 +99,12 @@ def check_memory():
     status = "good"
     if float(get_gb(mem.available)) < state_critical:
         status = "critical"
+        memory_critical_counter = memory_critical_counter + 1
     elif float(get_gb(mem.available)) < state_warning:
         status = "warning"
+        memory_warning_counter = memory_warning_counter + 1
+    else:
+        memory_good_counter = memory_good_counter + 1
 
     if status == old_status:
         pass #no changes
@@ -96,8 +121,12 @@ def check_memory():
     swap_status = "swap good"
     if float(get_gb(swap.free)) < swap_critical:
         swap_status = "swap critical"
+        swap_critical_counter = swap_critical_counter + 1
     elif float(get_gb(swap.free)) < swap_warning:
         swap_status = "swap warning"
+        swap_warning_counter = swap_warning_counter + 1
+    else:
+        swap_good_counter = swap_good_counter + 1
 
     if swap_status == swap_old_status:
         pass #no changes
@@ -113,8 +142,14 @@ def check_memory():
         print("ERROR WRITNG NEW STATUS IN FILE")
 
 
-
 def send_memory_warning(mem, swap, status):
+    global memory_good_counter
+    global memory_warning_counter
+    global memory_critical_counter
+    global swap_good_counter
+    global swap_warning_counter
+    global swap_critical_counter
+
     if status == "good":
         color_bla = 8311585
     elif status == "warning":
@@ -134,17 +169,20 @@ def send_memory_warning(mem, swap, status):
 
     embed.add_embed_field(name="Swap", value=f'{str(get_gb(swap.total))}GB', inline=True)
     embed.add_embed_field(name="Swap Free", value=f'{str(get_gb(swap.free))}GB', inline=True)
-
     #ping (just to add another field to make it look better)
     ping_here_b = measure_latency(host='8.8.8.8')
     ping_here = round(float(ping_here_b[0]),3)
     embed.add_embed_field(name="Ping", value=f'{str(ping_here)}ms', inline=True)
+
+    embed.add_embed_field(name="Memory Counter", value=f'**Good:** {memory_good_counter}\n**Warning:** {memory_warning_counter}\n**Critical:** {memory_critical_counter}\n', inline=True)
+    embed.add_embed_field(name="SWAP Counter", value=f'**Good:** {swap_good_counter}\n**Warning:** {swap_warning_counter}\n**Critical:** {swap_critical_counter}\n', inline=True)
 
     webhook = DiscordWebhook(url=webhook_url)
     webhook.add_embed(embed)
     response = webhook.execute()
 
 
+set_counter()
 checking_server = True
 while checking_server == True:
     read_config_file()
