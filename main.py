@@ -7,6 +7,8 @@ def read_config_file():
     global server_name
     global state_critical
     global state_warning
+    global swap_critical
+    global swap_warning
     global icon_url_footer
     global delay
 
@@ -17,6 +19,8 @@ def read_config_file():
         server_name = data["server_name"]
         state_critical = float(data["state_critical"])
         state_warning = float(data["state_warning"])
+        swap_critical = float(data["swap_critical"])
+        swap_warning = float(data["swap_warning"])
         icon_url_footer = data["icon_url_footer"]
         delay = data["delay"]
 
@@ -41,10 +45,17 @@ def read_old_status():
         content = f.read()
     return(str(content))
 
-def write_everything(mem, swap, status):
+def read_swap_old_status():
+    with open("DB/memory/old_swap_status.txt","r") as f:
+        content = f.read()
+    return(str(content))
+
+def write_everything(mem, swap, status, swap_status):
     #print("writing...")
     with open("DB/memory/old_status.txt","w") as f:
         f.write(status)
+    with open("DB/memory/old_swap_status.txt","w") as f:
+        f.write(swap_status)
     with open("DB/memory/old_avail_mem.txt","w") as f:
         f.write(str(mem.available))
     with open("DB/memory/old_avail_swap.txt","w") as f:
@@ -75,12 +86,31 @@ def check_memory():
     else:
         try:
             send_memory_warning(mem=mem, swap=swap, status=status)
-            try:
-                write_everything(mem=mem, swap=swap, status=status)
-            except:
-                print("ERROR WRITNG NEW STATUS IN FILE")
         except:
             print("ERROR SENDING WEBHOOK!")
+
+    
+    #same thing with SWAP again
+
+    swap_old_status = read_swap_old_status()
+    swap_status = "swap good"
+    if float(get_gb(swap.free)) < swap_critical:
+        swap_status = "swap critical"
+    elif float(get_gb(swap.free)) < swap_warning:
+        swap_status = "swap warning"
+
+    if swap_status == swap_old_status:
+        pass #no changes
+    else:
+        try:
+            send_memory_warning(mem=mem, swap=swap, status=swap_status)
+        except:
+            print("ERROR SENDING WEBHOOK!")
+
+    try:
+        write_everything(mem=mem, swap=swap, status=status, swap_status=swap_status)
+    except:
+        print("ERROR WRITNG NEW STATUS IN FILE")
 
 
 
